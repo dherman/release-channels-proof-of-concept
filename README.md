@@ -2,11 +2,13 @@
 
 ## The idea
 
-An _unstable feature_ is any feature flag with the prefix `unstable-`.
+This proof-of-concept shows an implementation technique for providing multiple release channels for a Rust library.
 
-A _dev channel_ is a package version whose prerelease has prefix `dev`.
+A **track** is a naming convention of prerelease versions.
 
-This proof-of-concept shows how you can implement a macro `dev_channel_macro::enforce!()` that enforces the policy that a library's unstable features are only allowed to be enabled when using the library's dev channel.
+An **unstable feature** is a naming convention for feature flags.
+
+The example library at the workspace root uses the convention `dev*` for a development track and the convention `unstable-*` for unstable features. The library uses attribute macros `#[tracks::unless_matches()]` and `#[tracks::if_env()]` to enforce the policy that its unstable features are only allowed to be enabled when using the library's development track.
 
 ## Tests
 
@@ -25,4 +27,4 @@ A few manual tests to demonstrate the behavior:
 Unfortunately, [Cargo feature flags are only exposed to the environment during `build.rs` scripts](https://doc.rust-lang.org/cargo/reference/environment-variables.html#environment-variables-cargo-sets-for-build-scripts), so the implementation requires a couple steps:
 
 1. The library's `build.rs` checks for any unstable features by iterating through the build environment variables, and saving the result in a custom env var (`NEON_UNSTABLE`).
-2. The library's `lib.rs` calls the `dev_channel_macro::enforce!()` proc macro, which checks the library version and the `NEON_UNSTABLE` env var to enforce the policy at compile time.
+2. The library's `lib.rs` uses the attribute macros to check the library version and the `NEON_UNSTABLE` env var to enforce the policy at compile time.
